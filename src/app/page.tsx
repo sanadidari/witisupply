@@ -1,4 +1,4 @@
-import { ThemeToggle } from '@/components/ui/ThemeToggle';
+import { Header } from '@/components/layout/Header';
 import { ProductCard } from '@/components/product/ProductCard';
 import { getProducts } from '@/lib/shopify/products';
 
@@ -7,25 +7,7 @@ export default async function Home() {
 
   return (
     <main className="min-h-screen bg-[var(--background)]">
-      {/* Header */}
-      <header className="border-b border-[var(--border)] sticky top-0 z-50 bg-[var(--background)]/80 backdrop-blur-md">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-          <h1
-            className="text-xl font-bold tracking-tight text-[var(--foreground)]"
-            style={{ fontFamily: 'var(--font-space-grotesk)' }}
-          >
-            WITI Supply
-          </h1>
-          <div className="flex items-center gap-4">
-            <nav className="hidden md:flex items-center gap-6 text-sm text-[var(--foreground-muted)]">
-              <a href="#" className="hover:text-[var(--foreground)] transition-colors">Products</a>
-              <a href="#" className="hover:text-[var(--foreground)] transition-colors">Collections</a>
-              <a href="#" className="hover:text-[var(--foreground)] transition-colors">About</a>
-            </nav>
-            <ThemeToggle />
-          </div>
-        </div>
-      </header>
+      <Header />
 
       {/* Hero */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 py-16 text-center">

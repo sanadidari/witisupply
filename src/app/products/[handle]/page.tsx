@@ -1,10 +1,9 @@
-import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getProduct } from '@/lib/shopify/products';
 import { ProductGallery } from '@/components/product/ProductGallery';
 import { AddToCartButton } from '@/components/product/AddToCartButton';
-import { ThemeToggle } from '@/components/ui/ThemeToggle';
+import { Header } from '@/components/layout/Header';
 
 interface Props {
   params: Promise<{ handle: string }>;
@@ -25,26 +24,7 @@ export default async function ProductPage({ params }: Props) {
 
   return (
     <main className="min-h-screen bg-[var(--background)]">
-      {/* Header */}
-      <header className="border-b border-[var(--border)] sticky top-0 z-50 bg-[var(--background)]/80 backdrop-blur-md">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-          <Link
-            href="/"
-            className="text-xl font-bold tracking-tight text-[var(--foreground)] hover:text-[var(--accent)] transition-colors"
-            style={{ fontFamily: 'var(--font-space-grotesk)' }}
-          >
-            WITI Supply
-          </Link>
-          <div className="flex items-center gap-4">
-            <nav className="hidden md:flex items-center gap-6 text-sm text-[var(--foreground-muted)]">
-              <Link href="/" className="hover:text-[var(--foreground)] transition-colors">Products</Link>
-              <a href="#" className="hover:text-[var(--foreground)] transition-colors">Collections</a>
-              <a href="#" className="hover:text-[var(--foreground)] transition-colors">About</a>
-            </nav>
-            <ThemeToggle />
-          </div>
-        </div>
-      </header>
+      <Header />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
         {/* Breadcrumb */}
