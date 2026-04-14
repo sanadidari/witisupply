@@ -1,0 +1,133 @@
+import Image from 'next/image';
+import Link from 'next/link';
+import { notFound } from 'next/navigation';
+import { getProduct } from '@/lib/shopify/products';
+import { ProductGallery } from '@/components/product/ProductGallery';
+import { AddToCartButton } from '@/components/product/AddToCartButton';
+import { ThemeToggle } from '@/components/ui/ThemeToggle';
+
+interface Props {
+  params: Promise<{ handle: string }>;
+}
+
+export default async function ProductPage({ params }: Props) {
+  const { handle } = await params;
+  const product = await getProduct(handle);
+
+  if (!product) notFound();
+
+  const images = product.images.edges.map((e) => e.node);
+  const variants = product.variants.edges.map((e) => e.node);
+  const firstAvailableVariant = variants.find((v) => v.availableForSale) ?? variants[0];
+  const inStock = variants.some((v) => v.availableForSale);
+  const price = parseFloat(product.priceRange.minVariantPrice.amount);
+  const currency = product.priceRange.minVariantPrice.currencyCode;
+
+  return (
+    <main className="min-h-screen bg-[var(--background)]">
+      {/* Header */}
+      <header className="border-b border-[var(--border)] sticky top-0 z-50 bg-[var(--background)]/80 backdrop-blur-md">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+          <Link
+            href="/"
+            className="text-xl font-bold tracking-tight text-[var(--foreground)] hover:text-[var(--accent)] transition-colors"
+            style={{ fontFamily: 'var(--font-space-grotesk)' }}
+          >
+            WITI Supply
+          </Link>
+          <div className="flex items-center gap-4">
+            <nav className="hidden md:flex items-center gap-6 text-sm text-[var(--foreground-muted)]">
+              <Link href="/" className="hover:text-[var(--foreground)] transition-colors">Products</Link>
+              <a href="#" className="hover:text-[var(--foreground)] transition-colors">Collections</a>
+              <a href="#" className="hover:text-[var(--foreground)] transition-colors">About</a>
+            </nav>
+            <ThemeToggle />
+          </div>
+        </div>
+      </header>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+        {/* Breadcrumb */}
+        <nav className="flex items-center gap-2 text-sm text-[var(--foreground-muted)] mb-8">
+          <Link href="/" className="hover:text-[var(--foreground)] transition-colors">Home</Link>
+          <span>/</span>
+          <span className="text-[var(--foreground)]">{product.title}</span>
+        </nav>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+          {/* Image Gallery */}
+          <ProductGallery images={images} title={product.title} />
+
+          {/* Product Info */}
+          <div className="flex flex-col gap-6">
+            <div>
+              <h1
+                className="text-3xl font-bold text-[var(--foreground)] leading-tight mb-3"
+                style={{ fontFamily: 'var(--font-space-grotesk)' }}
+              >
+                {product.title}
+              </h1>
+
+              <div className="flex items-center gap-3">
+                <span className="text-3xl font-bold text-[var(--foreground)]">
+                  ${price.toFixed(2)}
+                  <span className="text-base font-normal text-[var(--foreground-muted)] ml-1">{currency}</span>
+                </span>
+                <span className={`text-sm px-3 py-1 rounded-full font-medium ${
+                  inStock
+                    ? 'bg-[var(--success)]/15 text-[var(--success)]'
+                    : 'bg-[var(--danger)]/15 text-[var(--danger)]'
+                }`}>
+                  {inStock ? 'In stock' : 'Out of stock'}
+                </span>
+              </div>
+            </div>
+
+            {/* Variants */}
+            {variants.length > 1 && (
+              <div>
+                <p className="text-sm font-medium text-[var(--foreground-muted)] mb-2">Options</p>
+                <div className="flex flex-wrap gap-2">
+                  {variants.map((variant) => (
+                    <button
+                      key={variant.id}
+                      disabled={!variant.availableForSale}
+                      className={`px-4 py-2 text-sm rounded-lg border transition-all ${
+                        variant.id === firstAvailableVariant?.id
+                          ? 'border-[var(--accent)] bg-[var(--accent)]/10 text-[var(--accent)]'
+                          : variant.availableForSale
+                          ? 'border-[var(--border)] text-[var(--foreground)] hover:border-[var(--accent)]'
+                          : 'border-[var(--border)] text-[var(--foreground-muted)] opacity-40 cursor-not-allowed line-through'
+                      }`}
+                    >
+                      {variant.title}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Add to Cart */}
+            <AddToCartButton
+              variantId={firstAvailableVariant?.id ?? ''}
+              inStock={inStock}
+            />
+
+            {/* Description */}
+            {product.description && (
+              <div className="pt-6 border-t border-[var(--border)]">
+                <h2 className="text-sm font-semibold text-[var(--foreground)] mb-3 uppercase tracking-wider">
+                  Description
+                </h2>
+                <div
+                  className="text-sm text-[var(--foreground-muted)] leading-relaxed prose-sm"
+                  dangerouslySetInnerHTML={{ __html: product.descriptionHtml || product.description }}
+                />
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </main>
+  );
+}

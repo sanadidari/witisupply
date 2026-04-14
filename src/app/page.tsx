@@ -3,7 +3,7 @@ import { ProductCard } from '@/components/product/ProductCard';
 import { getProducts } from '@/lib/shopify/products';
 
 export default async function Home() {
-  const products = await getProducts(12);
+  const products = await getProducts(50);
 
   return (
     <main className="min-h-screen bg-[var(--background)]">
