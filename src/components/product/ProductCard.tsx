@@ -1,4 +1,3 @@
-import Image from 'next/image';
 import Link from 'next/link';
 import type { ShopifyProduct } from '@/lib/shopify/products';
 
@@ -15,12 +14,11 @@ export function ProductCard({ product }: { product: ShopifyProduct }) {
     >
       <div className="relative aspect-square bg-[var(--background-secondary)] overflow-hidden">
         {image ? (
-          <Image
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
             src={image.url}
             alt={image.altText || product.title}
-            fill
-            className="object-cover group-hover:scale-105 transition-transform duration-300"
-            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center text-[var(--foreground-muted)]">
