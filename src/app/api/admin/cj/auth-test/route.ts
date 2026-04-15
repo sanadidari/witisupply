@@ -6,18 +6,14 @@ export async function GET() {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const email = process.env.CJ_EMAIL;
-  const password = process.env.CJ_PASSWORD;
+  const apiKey = process.env.CJ_API_KEY;
 
-  if (!email || !password) {
+  if (!apiKey) {
     return NextResponse.json({
-      error: 'Missing env vars',
-      hasEmail: !!email,
-      hasPassword: !!password,
+      error: 'CJ_API_KEY env var is missing',
+      hasApiKey: false,
     });
   }
-
-  const body = { email, password };
 
   try {
     const res = await fetch(
@@ -25,7 +21,7 @@ export async function GET() {
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(body),
+        body: JSON.stringify({ apiKey }),
         cache: 'no-store',
       }
     );
@@ -42,8 +38,8 @@ export async function GET() {
       httpStatus: res.status,
       rawText: text,
       parsed: json,
-      sentEmail: email,
-      sentPasswordLength: password.length,
+      apiKeyLength: apiKey.length,
+      apiKeyPreview: apiKey.slice(0, 8) + '...',
     });
   } catch (e) {
     return NextResponse.json({ fetchError: String(e) });

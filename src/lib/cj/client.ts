@@ -8,13 +8,13 @@ async function getAccessToken(): Promise<string> {
     return cachedToken.token;
   }
 
+  const apiKey = process.env.CJ_API_KEY;
+  if (!apiKey) throw new Error('CJ_API_KEY env var is not set');
+
   const res = await fetch(`${CJ_BASE}/authentication/getAccessToken`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      email: process.env.CJ_EMAIL!,
-      password: process.env.CJ_PASSWORD!,
-    }),
+    body: JSON.stringify({ apiKey }),
     cache: 'no-store',
   });
 
