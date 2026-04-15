@@ -90,10 +90,10 @@ export function URLImporter() {
         <div>
           <p className="text-sm font-semibold text-[var(--foreground)] mb-1">How to import a CJ product</p>
           <ol className="text-xs text-[var(--foreground-muted)] flex flex-col gap-1 list-decimal list-inside">
-            <li>Go to <span className="font-mono bg-[var(--background-secondary)] px-1 rounded">cjdropshipping.com</span> and open a product</li>
-            <li>Copy the URL from the browser address bar</li>
-            <li>Paste below and click <strong>Preview</strong></li>
-            <li>Enter the cost price shown on CJ, then <strong>Import to Shopify</strong></li>
+            <li>Open a product on <span className="font-mono bg-[var(--background-secondary)] px-1 rounded">cjdropshipping.com</span></li>
+            <li>Copy the URL → paste below → click <strong>Preview</strong></li>
+            <li>Right-click the main product photo → <strong>Copy image address</strong> → paste in Image URL</li>
+            <li>Enter the cost price (shown on CJ) → <strong>Import to Shopify</strong></li>
           </ol>
         </div>
 
@@ -164,12 +164,15 @@ export function URLImporter() {
 
               {/* Image URL */}
               <div className="flex flex-col gap-1">
-                <label className="text-xs text-[var(--foreground-muted)]">Image URL <span className="opacity-60">(paste from CJ if wrong)</span></label>
+                <label className="text-xs text-[var(--foreground-muted)]">
+                  Image URL
+                  <span className="ml-1 opacity-60">— on CJ: right-click main photo → <strong>Copy image address</strong></span>
+                </label>
                 <input
                   type="url"
                   value={editImage}
                   onChange={(e) => setEditImage(e.target.value)}
-                  placeholder="https://cjimg.enclimate.com/..."
+                  placeholder="https://cf.cjdropshipping.com/..."
                   className="w-full px-3 py-2 rounded-lg border border-[var(--border)] bg-[var(--background)] text-[var(--foreground)] text-sm focus:outline-none focus:border-[var(--accent)]"
                 />
               </div>
