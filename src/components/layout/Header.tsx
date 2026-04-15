@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import { CartDrawer } from '@/components/cart/CartDrawer';
 import { useCart } from '@/context/CartContext';
+import { Logo } from '@/components/ui/Logo';
 
 export function Header() {
   const [cartOpen, setCartOpen] = useState(false);
@@ -14,12 +15,8 @@ export function Header() {
     <>
       <header className="border-b border-[var(--border)] sticky top-0 z-50 bg-[var(--background)]/80 backdrop-blur-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-          <Link
-            href="/"
-            className="text-xl font-bold tracking-tight text-[var(--foreground)] hover:text-[var(--accent)] transition-colors"
-            style={{ fontFamily: 'var(--font-space-grotesk)' }}
-          >
-            WITI Supply
+          <Link href="/" aria-label="WITI Supply home">
+            <Logo size="sm" />
           </Link>
 
           <div className="flex items-center gap-4">
