@@ -18,16 +18,28 @@ const spaceGrotesk = Space_Grotesk({
 
 export const metadata: Metadata = {
   title: {
-    default: 'WITI Supply — Premium Tech & Gadgets',
+    default: 'WITI Supply — Kitchen & Home Essentials',
     template: '%s | WITI Supply',
   },
-  description: 'Premium tech gadgets, drones, cameras, audio equipment and more. Free shipping on orders over $50.',
+  description: 'Discover premium kitchen gadgets and home essentials at unbeatable prices. Air fryers, cookware, appliances and more. Free shipping available.',
   metadataBase: new URL('https://witisupply.com'),
+  keywords: ['kitchen gadgets', 'air fryer', 'home essentials', 'cookware', 'kitchen appliances', 'dropshipping'],
   openGraph: {
     type: 'website',
     locale: 'en_US',
     url: 'https://witisupply.com',
     siteName: 'WITI Supply',
+    title: 'WITI Supply — Kitchen & Home Essentials',
+    description: 'Premium kitchen gadgets and home essentials at unbeatable prices.',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    site: '@witisupply',
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true },
   },
 };
 

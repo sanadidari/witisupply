@@ -1,3 +1,4 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getProduct } from '@/lib/shopify/products';
@@ -7,6 +8,38 @@ import { Header } from '@/components/layout/Header';
 
 interface Props {
   params: Promise<{ handle: string }>;
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { handle } = await params;
+  const product = await getProduct(handle);
+  if (!product) return { title: 'Product not found' };
+
+  const price = parseFloat(product.priceRange.minVariantPrice.amount);
+  const image = product.images.edges[0]?.node;
+  const description = product.description
+    ? product.description.slice(0, 155)
+    : `Buy ${product.title} at $${price.toFixed(2)}. Free shipping available at WITI Supply.`;
+
+  return {
+    title: product.title,
+    description,
+    openGraph: {
+      title: `${product.title} | WITI Supply`,
+      description,
+      type: 'website',
+      url: `https://witisupply.com/products/${handle}`,
+      images: image
+        ? [{ url: image.url, width: 800, height: 800, alt: image.altText || product.title }]
+        : [],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: product.title,
+      description,
+      images: image ? [image.url] : [],
+    },
+  };
 }
 
 export default async function ProductPage({ params }: Props) {
@@ -27,9 +60,38 @@ export default async function ProductPage({ params }: Props) {
   const discountPct = compareAt && compareAt > price
     ? Math.round((1 - price / compareAt) * 100)
     : null;
+  const mainImage = images[0]?.url;
+
+  // JSON-LD structured data for Google Shopping
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: product.title,
+    description: product.description || product.title,
+    image: images.map((img) => img.url),
+    url: `https://witisupply.com/products/${handle}`,
+    brand: { '@type': 'Brand', name: 'WITI Supply' },
+    offers: {
+      '@type': 'Offer',
+      priceCurrency: currency,
+      price: price.toFixed(2),
+      ...(compareAt && compareAt > price
+        ? { priceValidUntil: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] }
+        : {}),
+      availability: inStock
+        ? 'https://schema.org/InStock'
+        : 'https://schema.org/OutOfStock',
+      url: `https://witisupply.com/products/${handle}`,
+      seller: { '@type': 'Organization', name: 'WITI Supply' },
+    },
+  };
 
   return (
     <main className="min-h-screen bg-[var(--background)]">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <Header />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
@@ -116,14 +178,29 @@ export default async function ProductPage({ params }: Props) {
               inStock={inStock}
             />
 
+            {/* Trust badges */}
+            <div className="grid grid-cols-3 gap-3 py-4 border-t border-b border-[var(--border)]">
+              {[
+                { icon: '🚚', label: 'Free shipping', sub: 'On orders $50+' },
+                { icon: '↩', label: 'Easy returns', sub: '30-day policy' },
+                { icon: '🔒', label: 'Secure checkout', sub: 'SSL encrypted' },
+              ].map((badge) => (
+                <div key={badge.label} className="flex flex-col items-center text-center gap-1">
+                  <span className="text-xl">{badge.icon}</span>
+                  <p className="text-xs font-semibold text-[var(--foreground)]">{badge.label}</p>
+                  <p className="text-xs text-[var(--foreground-muted)]">{badge.sub}</p>
+                </div>
+              ))}
+            </div>
+
             {/* Description */}
             {product.description && (
-              <div className="pt-6 border-t border-[var(--border)]">
+              <div>
                 <h2 className="text-sm font-semibold text-[var(--foreground)] mb-3 uppercase tracking-wider">
                   Description
                 </h2>
                 <div
-                  className="text-sm text-[var(--foreground-muted)] leading-relaxed prose-sm"
+                  className="text-sm text-[var(--foreground-muted)] leading-relaxed"
                   dangerouslySetInnerHTML={{ __html: product.descriptionHtml || product.description }}
                 />
               </div>

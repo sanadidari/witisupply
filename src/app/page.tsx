@@ -11,15 +11,18 @@ export default async function Home() {
 
       {/* Hero */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 py-16 text-center">
+        <p className="text-sm font-semibold uppercase tracking-widest mb-4" style={{ color: 'var(--accent)' }}>
+          Kitchen & Home Essentials
+        </p>
         <h2
           className="text-5xl md:text-6xl font-bold tracking-tight text-[var(--foreground)] mb-4"
           style={{ fontFamily: 'var(--font-space-grotesk)' }}
         >
-          Premium Tech &<br />
-          <span style={{ color: 'var(--accent)' }}>Modern Gadgets</span>
+          Upgrade Your<br />
+          <span style={{ color: 'var(--accent)' }}>Kitchen Game</span>
         </h2>
         <p className="text-[var(--foreground-muted)] text-lg max-w-xl mx-auto mb-8">
-          Curated tech products for creators, professionals, and enthusiasts. Free shipping on orders over $50.
+          Premium kitchen gadgets and home essentials — curated for modern American homes. Up to 60% off retail price.
         </p>
         <a
           href="#products"

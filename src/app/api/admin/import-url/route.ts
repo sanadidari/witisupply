@@ -11,7 +11,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const { url, title, image, costPrice, publishNow = false } = await req.json();
+  const { url, title, image, description = '', costPrice, publishNow = false } = await req.json();
 
   if (!title || !costPrice) {
     return NextResponse.json({ error: 'title and costPrice are required' }, { status: 400 });
@@ -33,6 +33,7 @@ export async function POST(req: NextRequest) {
       body: JSON.stringify({
         product: {
           title,
+          body_html: description || '',
           status: publishNow ? 'active' : 'draft',
           images: image ? [{ src: image }] : [],
           variants: [

@@ -17,6 +17,7 @@ export function URLImporter() {
   const [preview, setPreview] = useState<PreviewProduct | null>(null);
   const [editTitle, setEditTitle] = useState('');
   const [editImage, setEditImage] = useState('');
+  const [editDescription, setEditDescription] = useState('');
   const [fetching, setFetching] = useState(false);
   const [importing, setImporting] = useState(false);
   const [publishNow, setPublishNow] = useState(false);
@@ -40,6 +41,7 @@ export function URLImporter() {
       setPreview(data);
       setEditTitle(data.title);
       setEditImage(data.image);
+      setEditDescription(data.description || '');
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Failed to fetch product');
     } finally {
@@ -59,6 +61,7 @@ export function URLImporter() {
           url: preview.sourceUrl,
           title: editTitle || preview.title,
           image: editImage || preview.image,
+          description: editDescription,
           costPrice: parseFloat(costPrice),
           publishNow,
         }),
@@ -72,6 +75,7 @@ export function URLImporter() {
       setCostPrice('');
       setEditTitle('');
       setEditImage('');
+      setEditDescription('');
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Import failed');
     } finally {
@@ -177,6 +181,20 @@ export function URLImporter() {
                 />
               </div>
             </div>
+          </div>
+
+          {/* Description */}
+          <div className="flex flex-col gap-1">
+            <label className="text-xs text-[var(--foreground-muted)]">
+              Description <span className="opacity-60">(optional — copy from CJ product page)</span>
+            </label>
+            <textarea
+              value={editDescription}
+              onChange={(e) => setEditDescription(e.target.value)}
+              rows={3}
+              placeholder="Paste the product description from CJ…"
+              className="w-full px-3 py-2 rounded-lg border border-[var(--border)] bg-[var(--background)] text-[var(--foreground)] text-sm focus:outline-none focus:border-[var(--accent)] resize-none"
+            />
           </div>
 
           {/* Cost price + pricing */}
