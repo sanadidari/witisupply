@@ -101,38 +101,45 @@ const GET_CART_QUERY = `
   }
 `;
 
+const noCache = { cache: 'no-store' as RequestCache };
+
 export async function createCart(variantId: string, quantity = 1): Promise<Cart> {
-  const data = await shopifyFetch<{ cartCreate: { cart: Cart } }>(CREATE_CART_MUTATION, {
-    lines: [{ merchandiseId: variantId, quantity }],
-  });
+  const data = await shopifyFetch<{ cartCreate: { cart: Cart } }>(
+    CREATE_CART_MUTATION,
+    { lines: [{ merchandiseId: variantId, quantity }] },
+    noCache
+  );
   return data.cartCreate.cart;
 }
 
 export async function addToCart(cartId: string, variantId: string, quantity = 1): Promise<Cart> {
-  const data = await shopifyFetch<{ cartLinesAdd: { cart: Cart } }>(ADD_LINES_MUTATION, {
-    cartId,
-    lines: [{ merchandiseId: variantId, quantity }],
-  });
+  const data = await shopifyFetch<{ cartLinesAdd: { cart: Cart } }>(
+    ADD_LINES_MUTATION,
+    { cartId, lines: [{ merchandiseId: variantId, quantity }] },
+    noCache
+  );
   return data.cartLinesAdd.cart;
 }
 
 export async function updateCartLine(cartId: string, lineId: string, quantity: number): Promise<Cart> {
-  const data = await shopifyFetch<{ cartLinesUpdate: { cart: Cart } }>(UPDATE_LINES_MUTATION, {
-    cartId,
-    lines: [{ id: lineId, quantity }],
-  });
+  const data = await shopifyFetch<{ cartLinesUpdate: { cart: Cart } }>(
+    UPDATE_LINES_MUTATION,
+    { cartId, lines: [{ id: lineId, quantity }] },
+    noCache
+  );
   return data.cartLinesUpdate.cart;
 }
 
 export async function removeCartLine(cartId: string, lineId: string): Promise<Cart> {
-  const data = await shopifyFetch<{ cartLinesRemove: { cart: Cart } }>(REMOVE_LINES_MUTATION, {
-    cartId,
-    lineIds: [lineId],
-  });
+  const data = await shopifyFetch<{ cartLinesRemove: { cart: Cart } }>(
+    REMOVE_LINES_MUTATION,
+    { cartId, lineIds: [lineId] },
+    noCache
+  );
   return data.cartLinesRemove.cart;
 }
 
 export async function getCart(cartId: string): Promise<Cart | null> {
-  const data = await shopifyFetch<{ cart: Cart | null }>(GET_CART_QUERY, { cartId });
+  const data = await shopifyFetch<{ cart: Cart | null }>(GET_CART_QUERY, { cartId }, noCache);
   return data.cart;
 }
