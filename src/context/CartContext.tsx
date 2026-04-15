@@ -2,9 +2,21 @@
 
 import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react';
 import type { Cart } from '@/lib/shopify/cart';
-import { createCart, addToCart, updateCartLine, removeCartLine, getCart } from '@/lib/shopify/cart';
 
 const CART_ID_KEY = 'witi_cart_id';
+
+async function cartApi(body: Record<string, unknown>): Promise<Cart> {
+  const res = await fetch('/api/cart', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) {
+    const err = await res.json().catch(() => ({}));
+    throw new Error(err.error ?? `Cart API error ${res.status}`);
+  }
+  return res.json();
+}
 
 interface CartContextValue {
   cart: Cart | null;
@@ -25,10 +37,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const cartId = localStorage.getItem(CART_ID_KEY);
     if (!cartId) return;
-    getCart(cartId).then((c) => {
-      if (c) setCart(c);
-      else localStorage.removeItem(CART_ID_KEY);
-    });
+    cartApi({ action: 'get', cartId })
+      .then(setCart)
+      .catch(() => localStorage.removeItem(CART_ID_KEY));
   }, []);
 
   const addItem = useCallback(async (variantId: string, quantity = 1) => {
@@ -37,12 +48,14 @@ export function CartProvider({ children }: { children: ReactNode }) {
       const cartId = localStorage.getItem(CART_ID_KEY);
       let updated: Cart;
       if (cartId) {
-        updated = await addToCart(cartId, variantId, quantity);
+        updated = await cartApi({ action: 'add', cartId, variantId, quantity });
       } else {
-        updated = await createCart(variantId, quantity);
+        updated = await cartApi({ action: 'create', variantId, quantity });
         localStorage.setItem(CART_ID_KEY, updated.id);
       }
       setCart(updated);
+    } catch (err) {
+      console.error('Add to cart failed:', err);
     } finally {
       setLoading(false);
     }
@@ -52,8 +65,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
     if (!cart) return;
     setLoading(true);
     try {
-      const updated = await updateCartLine(cart.id, lineId, quantity);
+      const updated = await cartApi({ action: 'update', cartId: cart.id, lineId, quantity });
       setCart(updated);
+    } catch (err) {
+      console.error('Update cart failed:', err);
     } finally {
       setLoading(false);
     }
@@ -63,8 +78,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
     if (!cart) return;
     setLoading(true);
     try {
-      const updated = await removeCartLine(cart.id, lineId);
+      const updated = await cartApi({ action: 'remove', cartId: cart.id, lineId });
       setCart(updated);
+    } catch (err) {
+      console.error('Remove from cart failed:', err);
     } finally {
       setLoading(false);
     }
