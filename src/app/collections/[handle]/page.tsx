@@ -25,7 +25,7 @@ const COLLECTION_LABELS: Record<string, { title: string; description: string }> 
 };
 
 const SORT_OPTIONS = [
-  { label: 'Featured', value: 'featured', key: 'MANUAL' as SortKey, reverse: false },
+  { label: 'Featured', value: 'featured', key: 'RELEVANCE' as SortKey, reverse: false },
   { label: 'Best Selling', value: 'best-selling', key: 'BEST_SELLING' as SortKey, reverse: false },
   { label: 'Newest', value: 'newest', key: 'CREATED_AT' as SortKey, reverse: true },
   { label: 'Price: Low to High', value: 'price-asc', key: 'PRICE' as SortKey, reverse: false },

@@ -108,10 +108,10 @@ const PRODUCTS_SORTED_QUERY = `
   }
 `;
 
-export type SortKey = 'MANUAL' | 'BEST_SELLING' | 'TITLE' | 'PRICE' | 'CREATED_AT';
+export type SortKey = 'RELEVANCE' | 'BEST_SELLING' | 'TITLE' | 'PRICE' | 'CREATED_AT';
 
 export async function getProductsSorted(
-  sortKey: SortKey = 'MANUAL',
+  sortKey: SortKey = 'RELEVANCE',
   reverse = false,
   first = 100
 ): Promise<ShopifyProduct[]> {
