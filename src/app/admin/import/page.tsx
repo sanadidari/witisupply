@@ -1,7 +1,7 @@
 import { getAdminSession } from '@/lib/admin/auth';
 import { redirect } from 'next/navigation';
 import { AdminShell } from '@/components/admin/AdminShell';
-import { CJImporter } from '@/components/admin/CJImporter';
+import { URLImporter } from '@/components/admin/URLImporter';
 
 export default async function AdminImport() {
   const ok = await getAdminSession();
@@ -14,10 +14,10 @@ export default async function AdminImport() {
           Import Products
         </h1>
         <p className="text-[var(--foreground-muted)] text-sm mt-1">
-          Search CJ Dropshipping catalog → import to Shopify with auto-pricing (×2.5 / ×4)
+          Paste a CJ Dropshipping product URL → auto-extract → import to Shopify with pricing ×2.5 / ×4
         </p>
       </div>
-      <CJImporter />
+      <URLImporter />
     </AdminShell>
   );
 }
