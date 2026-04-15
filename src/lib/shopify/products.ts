@@ -78,6 +78,50 @@ export async function getProducts(first = 50): Promise<ShopifyProduct[]> {
   return data.products.edges.map((e) => e.node);
 }
 
+const PRODUCTS_SORTED_QUERY = `
+  query getProductsSorted($first: Int!, $sortKey: ProductSortKeys!, $reverse: Boolean!) {
+    products(first: $first, sortKey: $sortKey, reverse: $reverse) {
+      edges {
+        node {
+          id
+          title
+          handle
+          description
+          priceRange {
+            minVariantPrice { amount currencyCode }
+          }
+          images(first: 1) {
+            edges { node { url altText } }
+          }
+          variants(first: 1) {
+            edges {
+              node {
+                id title availableForSale
+                price { amount currencyCode }
+                compareAtPrice { amount currencyCode }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+`;
+
+export type SortKey = 'MANUAL' | 'BEST_SELLING' | 'TITLE' | 'PRICE' | 'CREATED_AT';
+
+export async function getProductsSorted(
+  sortKey: SortKey = 'MANUAL',
+  reverse = false,
+  first = 100
+): Promise<ShopifyProduct[]> {
+  const data = await shopifyFetch<{ products: { edges: { node: ShopifyProduct }[] } }>(
+    PRODUCTS_SORTED_QUERY,
+    { first, sortKey, reverse }
+  );
+  return data.products.edges.map((e) => e.node);
+}
+
 export interface ShopifyProductDetail extends ShopifyProduct {
   descriptionHtml: string;
   variants: {

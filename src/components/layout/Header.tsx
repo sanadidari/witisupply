@@ -24,9 +24,8 @@ export function Header() {
 
           <div className="flex items-center gap-4">
             <nav className="hidden md:flex items-center gap-6 text-sm text-[var(--foreground-muted)]">
-              <Link href="/" className="hover:text-[var(--foreground)] transition-colors">Products</Link>
-              <a href="#" className="hover:text-[var(--foreground)] transition-colors">Collections</a>
-              <a href="#" className="hover:text-[var(--foreground)] transition-colors">About</a>
+              <Link href="/" className="hover:text-[var(--foreground)] transition-colors">Home</Link>
+              <Link href="/collections/cuisine-home" className="hover:text-[var(--foreground)] transition-colors">Kitchen & Home</Link>
             </nav>
 
             <ThemeToggle />
