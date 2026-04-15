@@ -7,7 +7,13 @@ export default async function AdminDashboard() {
   const ok = await getAdminSession();
   if (!ok) redirect('/admin/login');
 
-  const products = await listProducts();
+  let products: Awaited<ReturnType<typeof listProducts>> = [];
+  let fetchError = '';
+  try {
+    products = await listProducts();
+  } catch (e) {
+    fetchError = e instanceof Error ? e.message : 'Failed to load products';
+  }
   const active = products.filter((p) => p.status === 'active').length;
   const draft = products.filter((p) => p.status === 'draft').length;
 
@@ -19,6 +25,13 @@ export default async function AdminDashboard() {
         </h1>
         <p className="text-[var(--foreground-muted)] text-sm mt-1">Niche: Cuisine & Home</p>
       </div>
+
+      {fetchError && (
+        <div className="mb-6 p-4 rounded-xl bg-[var(--danger)]/10 border border-[var(--danger)]/30 text-sm text-[var(--danger)]">
+          <strong>Shopify Admin API error:</strong> {fetchError}
+          <br /><span className="text-xs mt-1 block opacity-80">Check that SHOPIFY_ADMIN_ACCESS_TOKEN is set in Vercel environment variables.</span>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
         <StatCard label="Total Products" value={products.length} color="accent" />

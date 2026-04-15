@@ -8,7 +8,13 @@ export default async function AdminProducts() {
   const ok = await getAdminSession();
   if (!ok) redirect('/admin/login');
 
-  const products = await listProducts();
+  let products: Awaited<ReturnType<typeof listProducts>> = [];
+  let fetchError = '';
+  try {
+    products = await listProducts();
+  } catch (e) {
+    fetchError = e instanceof Error ? e.message : 'Failed to load products';
+  }
 
   return (
     <AdminShell>
@@ -21,6 +27,12 @@ export default async function AdminProducts() {
         </div>
       </div>
 
+      {fetchError && (
+        <div className="mb-4 p-4 rounded-xl bg-[var(--danger)]/10 border border-[var(--danger)]/30 text-sm text-[var(--danger)]">
+          <strong>Shopify Admin API error:</strong> {fetchError}
+          <br /><span className="text-xs mt-1 block opacity-80">Check SHOPIFY_ADMIN_ACCESS_TOKEN in Vercel env vars.</span>
+        </div>
+      )}
       <ProductsTable products={products} />
     </AdminShell>
   );
