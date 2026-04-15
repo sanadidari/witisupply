@@ -12,7 +12,15 @@ export interface ShopifyProduct {
     edges: { node: { url: string; altText: string | null } }[];
   };
   variants: {
-    edges: { node: { id: string; title: string; availableForSale: boolean } }[];
+    edges: {
+      node: {
+        id: string;
+        title: string;
+        availableForSale: boolean;
+        price: { amount: string; currencyCode: string };
+        compareAtPrice: { amount: string; currencyCode: string } | null;
+      };
+    }[];
   };
 }
 
@@ -45,6 +53,14 @@ const PRODUCTS_QUERY = `
                 id
                 title
                 availableForSale
+                price {
+                  amount
+                  currencyCode
+                }
+                compareAtPrice {
+                  amount
+                  currencyCode
+                }
               }
             }
           }
@@ -54,7 +70,7 @@ const PRODUCTS_QUERY = `
   }
 `;
 
-export async function getProducts(first = 12): Promise<ShopifyProduct[]> {
+export async function getProducts(first = 50): Promise<ShopifyProduct[]> {
   const data = await shopifyFetch<{ products: { edges: { node: ShopifyProduct }[] } }>(
     PRODUCTS_QUERY,
     { first }
@@ -64,9 +80,6 @@ export async function getProducts(first = 12): Promise<ShopifyProduct[]> {
 
 export interface ShopifyProductDetail extends ShopifyProduct {
   descriptionHtml: string;
-  images: {
-    edges: { node: { url: string; altText: string | null } }[];
-  };
   variants: {
     edges: {
       node: {
@@ -74,6 +87,7 @@ export interface ShopifyProductDetail extends ShopifyProduct {
         title: string;
         availableForSale: boolean;
         price: { amount: string; currencyCode: string };
+        compareAtPrice: { amount: string; currencyCode: string } | null;
       };
     }[];
   };
@@ -108,6 +122,10 @@ const PRODUCT_BY_HANDLE_QUERY = `
             title
             availableForSale
             price {
+              amount
+              currencyCode
+            }
+            compareAtPrice {
               amount
               currencyCode
             }

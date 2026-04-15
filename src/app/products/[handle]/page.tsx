@@ -19,8 +19,14 @@ export default async function ProductPage({ params }: Props) {
   const variants = product.variants.edges.map((e) => e.node);
   const firstAvailableVariant = variants.find((v) => v.availableForSale) ?? variants[0];
   const inStock = variants.some((v) => v.availableForSale);
-  const price = parseFloat(product.priceRange.minVariantPrice.amount);
+  const price = parseFloat(firstAvailableVariant?.price?.amount ?? product.priceRange.minVariantPrice.amount);
+  const compareAt = firstAvailableVariant?.compareAtPrice
+    ? parseFloat(firstAvailableVariant.compareAtPrice.amount)
+    : null;
   const currency = product.priceRange.minVariantPrice.currencyCode;
+  const discountPct = compareAt && compareAt > price
+    ? Math.round((1 - price / compareAt) * 100)
+    : null;
 
   return (
     <main className="min-h-screen bg-[var(--background)]">
@@ -48,12 +54,29 @@ export default async function ProductPage({ params }: Props) {
                 {product.title}
               </h1>
 
-              <div className="flex items-center gap-3">
-                <span className="text-3xl font-bold text-[var(--foreground)]">
-                  ${price.toFixed(2)}
-                  <span className="text-base font-normal text-[var(--foreground-muted)] ml-1">{currency}</span>
-                </span>
-                <span className={`text-sm px-3 py-1 rounded-full font-medium ${
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center gap-3 flex-wrap">
+                  <span className="text-3xl font-bold text-[var(--foreground)]">
+                    ${price.toFixed(2)}
+                    <span className="text-base font-normal text-[var(--foreground-muted)] ml-1">{currency}</span>
+                  </span>
+                  {compareAt && compareAt > price && (
+                    <span className="text-xl text-[var(--foreground-muted)] line-through">
+                      ${compareAt.toFixed(2)}
+                    </span>
+                  )}
+                  {discountPct && (
+                    <span className="px-2 py-1 text-sm font-bold bg-[var(--danger)] text-white rounded-md">
+                      -{discountPct}%
+                    </span>
+                  )}
+                </div>
+                {discountPct && compareAt && (
+                  <p className="text-sm text-[var(--success)] font-medium">
+                    You save ${(compareAt - price).toFixed(2)} — Limited time offer
+                  </p>
+                )}
+                <span className={`self-start text-sm px-3 py-1 rounded-full font-medium ${
                   inStock
                     ? 'bg-[var(--success)]/15 text-[var(--success)]'
                     : 'bg-[var(--danger)]/15 text-[var(--danger)]'
