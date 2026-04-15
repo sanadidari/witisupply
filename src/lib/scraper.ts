@@ -20,26 +20,47 @@ export async function scrapeProductFromURL(url: string): Promise<ScrapedProduct>
 
   const html = await res.text();
 
-  // Extract title — try OG first, then <title>
-  const title =
-    html.match(/<meta[^>]+property=["']og:title["'][^>]+content=["']([^"']+)["']/i)?.[1] ||
-    html.match(/<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:title["']/i)?.[1] ||
-    html.match(/<title[^>]*>([^<]+)<\/title>/i)?.[1]?.replace(/\s*[-|].*$/, '').trim() ||
-    '';
+  let title = '';
+  let image = '';
+  let description = '';
 
-  // Extract image — try OG first
-  const image =
-    html.match(/<meta[^>]+property=["']og:image["'][^>]+content=["']([^"']+)["']/i)?.[1] ||
-    html.match(/<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:image["']/i)?.[1] ||
-    '';
+  // 1. Try JSON-LD structured data (most reliable for product pages)
+  const jsonLdBlocks = [...html.matchAll(/<script[^>]+type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi)];
+  for (const block of jsonLdBlocks) {
+    try {
+      const data = JSON.parse(block[1]);
+      const products = Array.isArray(data) ? data : [data];
+      for (const item of products) {
+        if (item['@type'] === 'Product') {
+          title = title || item.name || '';
+          const img = Array.isArray(item.image) ? item.image[0] : item.image;
+          image = image || img || '';
+          description = description || item.description || '';
+        }
+      }
+    } catch { /* ignore */ }
+  }
 
-  // Extract description
-  const description =
-    html.match(/<meta[^>]+property=["']og:description["'][^>]+content=["']([^"']+)["']/i)?.[1] ||
-    html.match(/<meta[^>]+content=["']([^"']+)["'][^>]+property=["']og:description["']/i)?.[1] ||
-    '';
+  // 2. Try CJ-specific patterns in Nuxt/Vue page state
+  if (!title) {
+    // CJ uses productNameEn as the English name field
+    title =
+      html.match(/"productNameEn"\s*:\s*"([^"]+)"/)?.[1] ||
+      html.match(/"productName"\s*:\s*"([^"]+)"/)?.[1] ||
+      html.match(/"name"\s*:\s*"([^"]{10,200})"/)?.[1] ||
+      '';
+  }
 
-  // Extract product ID from URL query string
+  if (!image) {
+    // CJ images are on their CDN — look for the first product image URL
+    image =
+      html.match(/"productImage"\s*:\s*"(https?:[^"]+)"/)?.[1] ||
+      html.match(/"imageUrl"\s*:\s*"(https?:[^"]+)"/)?.[1] ||
+      html.match(/"image"\s*:\s*"(https?:[^"]+cj[^"]+)"/i)?.[1] ||
+      '';
+  }
+
+  // 3. Extract product ID from URL
   const urlObj = new URL(url);
   const pid =
     urlObj.searchParams.get('id') ||
@@ -47,9 +68,19 @@ export async function scrapeProductFromURL(url: string): Promise<ScrapedProduct>
     urlObj.pathname.split('/').filter(Boolean).pop() ||
     '';
 
+  // 4. Fall back to page <title> (strip site name suffix)
+  if (!title) {
+    const rawTitle = html.match(/<title[^>]*>([^<]+)<\/title>/i)?.[1] || '';
+    // Remove common site name suffixes
+    title = rawTitle
+      .replace(/\s*[|\-–]\s*CJ.*$/i, '')
+      .replace(/\s*[|\-–]\s*Dropshipping.*$/i, '')
+      .trim();
+  }
+
   if (!title) {
     throw new Error(
-      'Could not extract product title. Make sure the URL is a valid CJ product page.'
+      'Could not extract product title from this page. Make sure the URL is a direct CJ product page.'
     );
   }
 
