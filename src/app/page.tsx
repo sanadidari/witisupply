@@ -171,7 +171,7 @@ export default async function Home() {
 
           <div className="pt-6 border-t border-[var(--border)] flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-[var(--foreground-muted)]">
             <p>© {new Date().getFullYear()} WITI Supply. All rights reserved.</p>
-            <p>Powered by Shopify</p>
+            <p>Free shipping on orders $50+</p>
           </div>
         </div>
       </footer>
