@@ -14,19 +14,23 @@ export async function GET(req: NextRequest) {
   const limit = 25;
   const offset = (page - 1) * limit;
 
-  const rows = status
-    ? await sql`
-        SELECT * FROM orders WHERE status = ${status}
-        ORDER BY created_at DESC LIMIT ${limit} OFFSET ${offset}
-      `
-    : await sql`
-        SELECT * FROM orders
-        ORDER BY created_at DESC LIMIT ${limit} OFFSET ${offset}
-      `;
+  try {
+    const rows = status
+      ? await sql`
+          SELECT * FROM orders WHERE status = ${status}
+          ORDER BY created_at DESC LIMIT ${limit} OFFSET ${offset}
+        `
+      : await sql`
+          SELECT * FROM orders
+          ORDER BY created_at DESC LIMIT ${limit} OFFSET ${offset}
+        `;
 
-  const [{ count }] = await sql`SELECT COUNT(*)::int AS count FROM orders`;
-
-  return NextResponse.json({ orders: rows, total: count, page, limit });
+    const [{ count }] = await sql`SELECT COUNT(*)::int AS count FROM orders`;
+    return NextResponse.json({ orders: rows, total: count, page, limit });
+  } catch {
+    // Table not yet created — return empty state instead of 500
+    return NextResponse.json({ orders: [], total: 0, page, limit });
+  }
 }
 
 // PATCH: manually update status OR refresh CJ tracking
