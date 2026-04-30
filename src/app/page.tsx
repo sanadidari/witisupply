@@ -1,6 +1,9 @@
 import Link from 'next/link';
 import { Header } from '@/components/layout/Header';
+import { Footer } from '@/components/layout/Footer';
 import { ProductCard } from '@/components/product/ProductCard';
+import { TestimonialsSection } from '@/components/ui/TestimonialsSection';
+import { NewsletterSection } from '@/components/ui/NewsletterSection';
 import { getProducts } from '@/lib/shopify/products';
 
 export default async function Home() {
@@ -12,7 +15,6 @@ export default async function Home() {
 
       {/* Hero */}
       <section className="relative overflow-hidden">
-        {/* Gradient bg */}
         <div
           className="absolute inset-0 pointer-events-none"
           style={{
@@ -37,7 +39,7 @@ export default async function Home() {
             style={{ fontFamily: 'var(--font-space-grotesk)' }}
           >
             Kitchen Gadgets<br />
-            <span style={{ color: 'var(--accent)' }}>You'll Actually Use</span>
+            <span style={{ color: 'var(--accent)' }}>You&apos;ll Actually Use</span>
           </h1>
 
           <p className="text-[var(--foreground-muted)] text-lg max-w-xl mx-auto mb-10">
@@ -78,7 +80,7 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* Feature strips */}
+      {/* Feature strip */}
       <section className="border-y border-[var(--border)] bg-[var(--background-secondary)]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
           <div className="flex flex-wrap justify-center gap-6 md:gap-12 text-sm text-[var(--foreground-muted)]">
@@ -129,52 +131,13 @@ export default async function Home() {
         )}
       </section>
 
-      {/* Footer */}
-      <footer className="border-t border-[var(--border)] bg-[var(--background-secondary)] mt-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-8">
-            <div className="col-span-2 md:col-span-1">
-              <p className="font-bold text-[var(--foreground)] mb-2" style={{ fontFamily: 'var(--font-space-grotesk)' }}>
-                WITI Supply
-              </p>
-              <p className="text-xs text-[var(--foreground-muted)] leading-relaxed">
-                Premium kitchen & home essentials, curated for modern American homes.
-              </p>
-            </div>
-            <div>
-              <p className="text-xs font-semibold text-[var(--foreground)] uppercase tracking-wider mb-3">Shop</p>
-              <ul className="flex flex-col gap-2 text-sm text-[var(--foreground-muted)]">
-                <li><Link href="/collections/cuisine-home" className="hover:text-[var(--foreground)] transition-colors">Kitchen & Home</Link></li>
-                <li><Link href="/collections/cuisine-home?sort=newest" className="hover:text-[var(--foreground)] transition-colors">New Arrivals</Link></li>
-                <li><Link href="/collections/cuisine-home?sort=best-selling" className="hover:text-[var(--foreground)] transition-colors">Best Sellers</Link></li>
-                <li><Link href="/collections/cuisine-home?sort=price-asc" className="hover:text-[var(--foreground)] transition-colors">Price: Low to High</Link></li>
-              </ul>
-            </div>
-            <div>
-              <p className="text-xs font-semibold text-[var(--foreground)] uppercase tracking-wider mb-3">Help</p>
-              <ul className="flex flex-col gap-2 text-sm text-[var(--foreground-muted)]">
-                <li><span className="cursor-default">Shipping Policy</span></li>
-                <li><span className="cursor-default">Return Policy</span></li>
-                <li><span className="cursor-default">Contact Us</span></li>
-                <li><span className="cursor-default">FAQ</span></li>
-              </ul>
-            </div>
-            <div>
-              <p className="text-xs font-semibold text-[var(--foreground)] uppercase tracking-wider mb-3">Follow</p>
-              <ul className="flex flex-col gap-2 text-sm text-[var(--foreground-muted)]">
-                <li><span className="cursor-default">Pinterest</span></li>
-                <li><span className="cursor-default">Instagram</span></li>
-                <li><span className="cursor-default">TikTok</span></li>
-              </ul>
-            </div>
-          </div>
+      {/* Testimonials */}
+      <TestimonialsSection />
 
-          <div className="pt-6 border-t border-[var(--border)] flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-[var(--foreground-muted)]">
-            <p>© {new Date().getFullYear()} WITI Supply. All rights reserved.</p>
-            <p>Free shipping on orders $50+</p>
-          </div>
-        </div>
-      </footer>
+      {/* Newsletter */}
+      <NewsletterSection />
+
+      <Footer />
     </main>
   );
 }

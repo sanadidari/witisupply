@@ -8,6 +8,7 @@ interface PreviewProduct {
   image: string;
   description: string;
   pid: string;
+  costPrice?: number;
   sourceUrl: string;
 }
 
@@ -42,6 +43,7 @@ export function URLImporter() {
       setEditTitle(data.title);
       setEditImage(data.image);
       setEditDescription(data.description || '');
+      if (data.costPrice) setCostPrice(String(data.costPrice));
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Failed to fetch product');
     } finally {
@@ -96,8 +98,8 @@ export function URLImporter() {
           <ol className="text-xs text-[var(--foreground-muted)] flex flex-col gap-1 list-decimal list-inside">
             <li>Open a product on <span className="font-mono bg-[var(--background-secondary)] px-1 rounded">cjdropshipping.com</span></li>
             <li>Copy the URL → paste below → click <strong>Preview</strong></li>
-            <li>Right-click the main product photo → <strong>Copy image address</strong> → paste in Image URL</li>
-            <li>Enter the cost price (shown on CJ) → <strong>Import to Shopify</strong></li>
+            <li>Title, image and price are fetched automatically from CJ API</li>
+            <li>Review, adjust if needed → <strong>Import to Shopify</strong></li>
           </ol>
         </div>
 
@@ -199,7 +201,10 @@ export function URLImporter() {
 
           {/* Cost price + pricing */}
           <div className="flex items-center gap-3">
-            <label className="text-xs text-[var(--foreground-muted)] shrink-0">Cost price (from CJ)</label>
+            <label className="text-xs text-[var(--foreground-muted)] shrink-0">
+              Cost price
+              {preview?.costPrice && <span className="ml-1 text-[var(--success)]">✓ from CJ API</span>}
+            </label>
             <div className="flex items-center gap-1">
               <span className="text-sm text-[var(--foreground-muted)]">$</span>
               <input

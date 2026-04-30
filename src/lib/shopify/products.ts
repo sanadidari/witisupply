@@ -187,3 +187,41 @@ export async function getProduct(handle: string): Promise<ShopifyProductDetail |
   );
   return data.productByHandle;
 }
+
+const SEARCH_PRODUCTS_QUERY = `
+  query searchProducts($query: String!, $first: Int!) {
+    products(first: $first, query: $query) {
+      edges {
+        node {
+          id
+          title
+          handle
+          description
+          priceRange {
+            minVariantPrice { amount currencyCode }
+          }
+          images(first: 1) {
+            edges { node { url altText } }
+          }
+          variants(first: 1) {
+            edges {
+              node {
+                id title availableForSale
+                price { amount currencyCode }
+                compareAtPrice { amount currencyCode }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+`;
+
+export async function searchProducts(query: string, first = 50): Promise<ShopifyProduct[]> {
+  const data = await shopifyFetch<{ products: { edges: { node: ShopifyProduct }[] } }>(
+    SEARCH_PRODUCTS_QUERY,
+    { query, first }
+  );
+  return data.products.edges.map((e) => e.node);
+}

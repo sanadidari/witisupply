@@ -1,8 +1,11 @@
+import { getCJProduct } from '@/lib/cj/products';
+
 export interface ScrapedProduct {
   title: string;
   image: string;
   description: string;
   pid: string;
+  costPrice?: number;
   sourceUrl: string;
 }
 
@@ -32,16 +35,30 @@ export async function scrapeProductFromURL(url: string): Promise<ScrapedProduct>
     urlObj.hostname.includes('cjdrop');
 
   if (isCJ) {
-    if (!slug && !pid) {
+    const productId = pid || slug;
+    if (!productId) {
       throw new Error('Invalid CJ URL — make sure you copy the full product page URL.');
     }
-    return {
-      title: slugToTitle(slug),
-      image: '',
-      description: '',
-      pid: pid || slug,
-      sourceUrl: url,
-    };
+    try {
+      const cjProduct = await getCJProduct(productId);
+      return {
+        title: cjProduct.productNameEn,
+        image: cjProduct.productImage,
+        description: '',
+        pid: cjProduct.pid,
+        costPrice: cjProduct.sellPrice,
+        sourceUrl: url,
+      };
+    } catch {
+      // API fallback: slug-derived title, user fills in the rest manually
+      return {
+        title: slugToTitle(slug),
+        image: '',
+        description: '',
+        pid: productId,
+        sourceUrl: url,
+      };
+    }
   }
 
   // Generic HTML scraper for non-CJ URLs

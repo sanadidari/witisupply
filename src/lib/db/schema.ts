@@ -46,5 +46,34 @@ export async function runMigrations() {
     )
   `;
 
+  await sql`
+    CREATE TABLE IF NOT EXISTS orders (
+      id                   SERIAL PRIMARY KEY,
+      shopify_order_id     TEXT NOT NULL UNIQUE,
+      shopify_order_number TEXT,
+      customer_email       TEXT,
+      customer_name        TEXT,
+      shipping_address     JSONB,
+      line_items           JSONB,
+      total_price          DECIMAL(10,2),
+      currency             TEXT DEFAULT 'USD',
+      status               TEXT DEFAULT 'pending',
+      cj_orders            JSONB DEFAULT '[]',
+      error_message        TEXT,
+      created_at           TIMESTAMPTZ DEFAULT NOW(),
+      updated_at           TIMESTAMPTZ DEFAULT NOW()
+    )
+  `;
+
+  await sql`
+    CREATE TABLE IF NOT EXISTS rate_limits (
+      id           SERIAL PRIMARY KEY,
+      key          TEXT NOT NULL,
+      attempted_at TIMESTAMPTZ DEFAULT NOW()
+    )
+  `;
+
+  await sql`CREATE INDEX IF NOT EXISTS rate_limits_key_idx ON rate_limits (key, attempted_at)`;
+
   return { ok: true };
 }

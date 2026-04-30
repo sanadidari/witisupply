@@ -68,7 +68,7 @@ export async function POST(req: NextRequest) {
     INSERT INTO product_suppliers
       (shopify_product_id, supplier, supplier_product_id, cost_price, sell_price, compare_at_price, is_active)
     VALUES
-      (${String(shopifyProduct.id)}, 'cj', ${url}, ${cost}, ${sellPrice}, ${compareAtPrice}, true)
+      (${String(shopifyProduct.id)}, ${url?.includes('cjdrop') || url?.includes('cj.com') ? 'cj' : 'manual'}, ${url}, ${cost}, ${sellPrice}, ${compareAtPrice}, true)
   `;
 
   return NextResponse.json({

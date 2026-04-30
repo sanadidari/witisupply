@@ -5,6 +5,7 @@ import { getProduct } from '@/lib/shopify/products';
 import { ProductGallery } from '@/components/product/ProductGallery';
 import { AddToCartButton } from '@/components/product/AddToCartButton';
 import { Header } from '@/components/layout/Header';
+import { Footer } from '@/components/layout/Footer';
 
 interface Props {
   params: Promise<{ handle: string }>;
@@ -208,6 +209,8 @@ export default async function ProductPage({ params }: Props) {
           </div>
         </div>
       </div>
+
+      <Footer />
     </main>
   );
 }

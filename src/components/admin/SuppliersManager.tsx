@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import type { AdminProduct } from '@/lib/admin/shopify';
 
-const SUPPLIERS = ['spocket', 'zendrop', 'cj'] as const;
+const SUPPLIERS = ['spocket', 'zendrop', 'cj', 'manual'] as const;
 type Supplier = typeof SUPPLIERS[number];
 
 interface SupplierRow {
@@ -24,12 +24,14 @@ const supplierColors: Record<Supplier, string> = {
   spocket: 'bg-purple-500/15 text-purple-400',
   zendrop: 'bg-blue-500/15 text-blue-400',
   cj: 'bg-orange-500/15 text-orange-400',
+  manual: 'bg-zinc-500/15 text-zinc-400',
 };
 
 export function SuppliersManager({ products }: { products: AdminProduct[] }) {
   const [selectedId, setSelectedId] = useState<string>(String(products[0]?.id ?? ''));
   const [suppliers, setSuppliers] = useState<SupplierRow[]>([]);
   const [loading, setLoading] = useState(false);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState({
     supplier: 'spocket' as Supplier,
@@ -76,6 +78,21 @@ export function SuppliersManager({ products }: { products: AdminProduct[] }) {
       setSuppliers((prev) =>
         prev.map((s) => ({ ...s, is_active: s.id === id ? is_active : (is_active ? false : s.is_active) }))
       );
+    }
+  }
+
+  async function handleDelete(id: number, isActive: boolean) {
+    if (isActive) {
+      if (!confirm('This is the active supplier. Delete anyway?')) return;
+    }
+    setDeletingId(id);
+    try {
+      const res = await fetch(`/api/admin/suppliers?id=${id}`, { method: 'DELETE' });
+      if (res.ok) {
+        setSuppliers((prev) => prev.filter((s) => s.id !== id));
+      }
+    } finally {
+      setDeletingId(null);
     }
   }
 
@@ -179,19 +196,19 @@ export function SuppliersManager({ products }: { products: AdminProduct[] }) {
           <div className="divide-y divide-[var(--border)]">
             {suppliers.map((s) => (
               <div key={s.id} className={`p-4 flex items-start justify-between gap-4 ${s.is_active ? 'bg-[var(--success)]/5' : ''}`}>
-                <div className="flex items-start gap-3">
-                  <span className={`px-2 py-0.5 text-xs font-bold rounded-md ${supplierColors[s.supplier]}`}>
+                <div className="flex items-start gap-3 flex-1 min-w-0">
+                  <span className={`px-2 py-0.5 text-xs font-bold rounded-md flex-shrink-0 ${supplierColors[s.supplier] ?? 'bg-zinc-500/15 text-zinc-400'}`}>
                     {s.supplier.toUpperCase()}
                   </span>
-                  <div>
+                  <div className="min-w-0">
                     <p className="text-sm font-medium text-[var(--foreground)]">
                       Cost: ${Number(s.cost_price || 0).toFixed(2)}
                       {' · '}Sell: ${Number(s.sell_price || 0).toFixed(2)}
                       {s.compare_at_price ? ` · Compare: $${Number(s.compare_at_price).toFixed(2)}` : ''}
                     </p>
-                    <p className="text-xs text-[var(--foreground-muted)] mt-0.5">
-                      {s.lead_time_days ? `${s.lead_time_days} days lead` : ''}
-                      {s.supplier_product_id ? ` · ID: ${s.supplier_product_id}` : ''}
+                    <p className="text-xs text-[var(--foreground-muted)] mt-0.5 truncate">
+                      {s.lead_time_days ? `${s.lead_time_days}d lead` : ''}
+                      {s.supplier_product_id ? ` · ${s.supplier_product_id}` : ''}
                       {s.notes ? ` · ${s.notes}` : ''}
                     </p>
                     {s.is_active && (
@@ -199,14 +216,33 @@ export function SuppliersManager({ products }: { products: AdminProduct[] }) {
                     )}
                   </div>
                 </div>
-                {!s.is_active && (
+
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  {!s.is_active && (
+                    <button
+                      onClick={() => handleSetActive(s.id, true)}
+                      className="px-3 py-1.5 text-xs font-semibold rounded-lg bg-[var(--accent)]/15 text-[var(--accent)] hover:bg-[var(--accent)]/25 transition-colors"
+                    >
+                      Set Active
+                    </button>
+                  )}
                   <button
-                    onClick={() => handleSetActive(s.id, true)}
-                    className="flex-shrink-0 px-3 py-1.5 text-xs font-semibold rounded-lg bg-[var(--accent)]/15 text-[var(--accent)] hover:bg-[var(--accent)]/25 transition-colors"
+                    onClick={() => handleDelete(s.id, s.is_active)}
+                    disabled={deletingId === s.id}
+                    className="p-1.5 rounded-lg text-[var(--foreground-muted)] hover:text-[var(--danger)] hover:bg-[var(--danger)]/10 transition-colors disabled:opacity-40"
+                    title="Delete supplier"
                   >
-                    Set Active
+                    {deletingId === s.id ? (
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="animate-spin">
+                        <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
+                      </svg>
+                    ) : (
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <path d="M3 6h18M19 6l-1 14H6L5 6M10 11v6M14 11v6M9 6V4h6v2"/>
+                      </svg>
+                    )}
                   </button>
-                )}
+                </div>
               </div>
             ))}
           </div>

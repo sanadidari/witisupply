@@ -50,7 +50,17 @@
 
 * {
   box-sizing: border-box;
-  transition: background-color 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+}
+
+*,
+*::before,
+*::after {
+  transition: background-color 0.25s ease, border-color 0.25s ease, color 0.25s ease, fill 0.25s ease;
+}
+
+/* Don't animate everything inside buttons/inputs — too distracting */
+button, input, select, textarea, a {
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease, opacity 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
 }
 
 body {

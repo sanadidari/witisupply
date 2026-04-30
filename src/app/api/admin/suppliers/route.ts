@@ -45,11 +45,26 @@ export async function PATCH(req: NextRequest) {
   }
   const { id, is_active } = await req.json();
 
-  // Deactivate all suppliers for this product first, then activate selected
   const [current] = await sql`SELECT shopify_product_id FROM product_suppliers WHERE id = ${id}`;
+  if (!current) return NextResponse.json({ error: 'Not found' }, { status: 404 });
+
   if (is_active) {
     await sql`UPDATE product_suppliers SET is_active = false WHERE shopify_product_id = ${current.shopify_product_id}`;
   }
   const [row] = await sql`UPDATE product_suppliers SET is_active = ${is_active}, updated_at = NOW() WHERE id = ${id} RETURNING *`;
   return NextResponse.json(row);
+}
+
+export async function DELETE(req: NextRequest) {
+  if (!(await getAdminSession())) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+  const { searchParams } = new URL(req.url);
+  const id = searchParams.get('id');
+  if (!id) return NextResponse.json({ error: 'id is required' }, { status: 400 });
+
+  const [deleted] = await sql`DELETE FROM product_suppliers WHERE id = ${id} RETURNING id`;
+  if (!deleted) return NextResponse.json({ error: 'Not found' }, { status: 404 });
+
+  return NextResponse.json({ ok: true });
 }

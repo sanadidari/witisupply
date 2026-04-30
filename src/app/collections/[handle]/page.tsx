@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Header } from '@/components/layout/Header';
 import { ProductCard } from '@/components/product/ProductCard';
 import { getProductsSorted, type SortKey } from '@/lib/shopify/products';
+import { Footer } from '@/components/layout/Footer';
 import Link from 'next/link';
 
 interface Props {
@@ -141,6 +142,8 @@ export default async function CollectionPage({ params, searchParams }: Props) {
           </div>
         )}
       </div>
+
+      <Footer />
     </main>
   );
 }

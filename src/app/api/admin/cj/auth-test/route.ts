@@ -1,18 +1,19 @@
 import { NextResponse } from 'next/server';
-import { getAdminSession } from '@/lib/admin/auth';
 
+// Diagnostic endpoint disabled in production.
 export async function GET() {
+  if (process.env.NODE_ENV === 'production') {
+    return NextResponse.json({ error: 'Not found' }, { status: 404 });
+  }
+
+  const { getAdminSession } = await import('@/lib/admin/auth');
   if (!(await getAdminSession())) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
   const apiKey = process.env.CJ_API_KEY;
-
   if (!apiKey) {
-    return NextResponse.json({
-      error: 'CJ_API_KEY env var is missing',
-      hasApiKey: false,
-    });
+    return NextResponse.json({ error: 'CJ_API_KEY env var is missing', hasApiKey: false });
   }
 
   try {
@@ -25,22 +26,9 @@ export async function GET() {
         cache: 'no-store',
       }
     );
-
-    const text = await res.text();
-    let json: unknown;
-    try {
-      json = JSON.parse(text);
-    } catch {
-      json = null;
-    }
-
-    return NextResponse.json({
-      httpStatus: res.status,
-      rawText: text,
-      parsed: json,
-      apiKeyLength: apiKey.length,
-      apiKeyPreview: apiKey.slice(0, 8) + '...',
-    });
+    const data = await res.json();
+    // Return only whether auth succeeded — no key details exposed
+    return NextResponse.json({ httpStatus: res.status, result: data.result, message: data.message });
   } catch (e) {
     return NextResponse.json({ fetchError: String(e) });
   }

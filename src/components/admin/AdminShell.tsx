@@ -7,6 +7,7 @@ import type { ReactNode } from 'react';
 
 const nav = [
   { href: '/admin', label: 'Dashboard', icon: '▦' },
+  { href: '/admin/orders', label: 'Orders', icon: '◫' },
   { href: '/admin/products', label: 'Products', icon: '⊞' },
   { href: '/admin/import', label: 'Import (CJ)', icon: '⊕' },
   { href: '/admin/suppliers', label: 'Suppliers', icon: '⊡' },
